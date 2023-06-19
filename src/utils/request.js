@@ -7,10 +7,10 @@ import { getToken } from '@/utils/auth'
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 30000 // request timeout
+  timeout: 5000 // request timeout
 })
 
-// request interceptor
+//请求拦截器：携带的token字段
 service.interceptors.request.use(
   config => {
     // do something before request is sent
@@ -30,7 +30,7 @@ service.interceptors.request.use(
   }
 )
 
-// response interceptor
+//响应拦截器
 service.interceptors.response.use(
   /**
    * If you want to get http information such as headers or status
@@ -45,12 +45,12 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    // if the custom code is not 20000|200, it is judged as an error.
-    if (res.code !== 20000 && res.code !== 200) {
+    //服务器响应失败在干什么,因为咱们真实服务器返回code  20000也有可能200
+    if (res.code !== 20000 && res.code!=200) {
       Message({
         message: res.message || 'Error',
         type: 'error',
-        duration: 30 * 1000
+        duration: 5 * 1000
       })
 
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
@@ -68,6 +68,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
+    //服务器相应成功干什么
       return res
     }
   },
